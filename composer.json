@@ -1,8 +1,8 @@
 {
-	"name": "codeigniter4/framework",
+	"name": "fzzio/hueleanuevo",
 	"type": "project",
-	"description": "The CodeIgniter framework v4",
-	"homepage": "https://codeigniter.com",
+	"description": "Huele a Nuevo BackOffice",
+	"homepage": "https://www.hueleanuevo.com",
 	"license": "MIT",
 	"require": {
 		"php": ">=7.2",
