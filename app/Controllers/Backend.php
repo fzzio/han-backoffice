@@ -183,7 +183,8 @@ class Backend extends BaseController
 		$title = "Rol";
 	    $crud = new GroceryCrud();
 
-	    $crud->setTable( 'role' );
+		$crud->setTable( 'role' );
+		
 		$crud->displayAs( 'name' , 'Nombre del Rol' );
 		$crud->displayAs( 'status' , 'Estado' );
 
