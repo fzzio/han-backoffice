@@ -16,6 +16,7 @@
 			<?php echo $page_title ?>
         </h3>
         <div>
+			<a href='<?php echo site_url('backend/role')?>'>Cargos</a> |
 			<a href='<?php echo site_url('backend/employee')?>'>Empleados</a> |
 			<a href='<?php echo site_url('backend/client')?>'>Clientes</a> |
 			<a href='<?php echo site_url('backend/planAssignation')?>'>Cliente - Plan</a> |

@@ -20,12 +20,16 @@
 		<h3>
 			<?php echo $page_title ?>
 		</h3>
+		<div>
+			<a href='<?php echo site_url('backend/admin')?>'>Menu Admin</a>
+		</div>
+		<hr />
 		<?php if (isset($output)): ?>
 			<div class="app">
 				<?php echo $output; ?>
 			</div>
 		<?php endif; ?>
-		<?php if (isset($css_files)): ?>
+		<?php if (isset($js_files)): ?>
 			<?php foreach($js_files as $file): ?>
 				<script src="<?php echo $file; ?>"></script>
 			<?php endforeach; ?>
