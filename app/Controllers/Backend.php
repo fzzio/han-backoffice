@@ -61,8 +61,8 @@ class Backend extends BaseController
 		$crud->fieldType('phone', 'integer');
 		$crud->fieldType('modified','hidden');
 		$crud->fieldType('status', 'dropdown', array(
-			STATUS_ACTIVE => 'Active',
-			STATUS_INACTIVE => 'Inactive',
+			STATUS_ACTIVE => lang('Hueleanuevo.active'),
+			STATUS_INACTIVE => lang('Hueleanuevo.inactive'),
 		));
 
 		$crud->unsetExport();
@@ -99,8 +99,8 @@ class Backend extends BaseController
 
 		$crud->fieldType('modified','hidden');
 		$crud->fieldType('status', 'dropdown', array(
-			STATUS_ACTIVE => 'Active',
-			STATUS_INACTIVE => 'Inactive',
+			STATUS_ACTIVE => lang('Hueleanuevo.active'),
+			STATUS_INACTIVE => lang('Hueleanuevo.inactive'),
 		));
 
 		$crud->unsetExport();
@@ -132,8 +132,8 @@ class Backend extends BaseController
 		
 		$crud->fieldType('price', 'integer');
 		$crud->fieldType('status', 'dropdown', array(
-			STATUS_ACTIVE => 'Active',
-			STATUS_INACTIVE => 'Inactive',
+			STATUS_ACTIVE => lang('Hueleanuevo.active'),
+			STATUS_INACTIVE => lang('Hueleanuevo.inactive'),
 		));
 
 		$crud->unsetExport();
@@ -193,8 +193,8 @@ class Backend extends BaseController
 
 		$crud->fieldType('modified','hidden');
 		$crud->fieldType('status', 'dropdown', array(
-			STATUS_ACTIVE => 'Active',
-			STATUS_INACTIVE => 'Inactive',
+			STATUS_ACTIVE => lang('Hueleanuevo.active'),
+			STATUS_INACTIVE => lang('Hueleanuevo.inactive'),
 		));
 
 		$crud->unsetExport();
@@ -235,8 +235,8 @@ class Backend extends BaseController
 
 		$crud->fieldType('modified','hidden');
 		$crud->fieldType('status', 'dropdown', array(
-			STATUS_ACTIVE => 'Active',
-			STATUS_INACTIVE => 'Inactive',
+			STATUS_ACTIVE => lang('Hueleanuevo.active'),
+			STATUS_INACTIVE => lang('Hueleanuevo.inactive'),
 		));
 
 		$crud->unsetExport();
@@ -312,8 +312,8 @@ class Backend extends BaseController
 
 		$crud->fieldType('amount', 'integer');
 		$crud->fieldType('status', 'dropdown', array(
-			STATUS_ACTIVE => 'Active',
-			STATUS_INACTIVE => 'Inactive',
+			STATUS_ACTIVE => lang('Hueleanuevo.active'),
+			STATUS_INACTIVE => lang('Hueleanuevo.inactive'),
 		));
 
 		$crud->setRelation('order_id', 'order','{order_id}');
