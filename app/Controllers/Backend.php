@@ -1,6 +1,7 @@
 <?php namespace App\Controllers;
 
 use App\Libraries\GroceryCrud;
+use CodeIgniter\I18n\Time;
 
 class Backend extends BaseController
 {
@@ -64,6 +65,8 @@ class Backend extends BaseController
 			STATUS_ACTIVE => ucwords(lang('Hueleanuevo.active')),
 			STATUS_INACTIVE => ucwords(lang('Hueleanuevo.inactive')),
 		));
+
+		$crud->setRule('email', 'Email', 'valid_email');
 
 		$crud->unsetExport();
 
@@ -167,18 +170,19 @@ class Backend extends BaseController
 		$crud->displayAs( 'modified' , 'Modificado' );
 		$crud->displayAs( 'status' , 'Estado' );
 
-		$crud->setRelation('plan_id','plan','{name} - {pounds} lbs.');
-		$crud->setRelation('client_id','client','[{dni}] - {lastname} {name}');
+		$crud->setRelation('plan_id','plan','{name} - {pounds} lbs.', ['status' => STATUS_ACTIVE]);
+		$crud->setRelation('client_id','client','[{dni}] - {lastname} {name}', ['status' => STATUS_ACTIVE]);
 
-		$crud->columns(['plan_id', 'client_id', 'available', 'consumed', 'cycle_start', 'cycle_end', 'contract_months', 'contract_date', 'status']);
-		$crud->fields(['plan_id', 'client_id', 'status']);
+		$crud->columns(['plan_id', 'client_id', 'available', 'consumed', 'cycle_start', 'cycle_end', 'contract_months', 'created', 'status']);
+		$crud->fields(['plan_id', 'client_id', 'status', 'available', 'consumed', 'cycle_start', 'cycle_end', 'contract_months', 'created']);
 		$crud->requiredFields(['plan_id', 'client_id', 'status']);
 
-		$crud->fieldType('consumed', 'integer');
-		$crud->fieldType('available', 'integer');
-		$crud->fieldType('contract_months', 'integer');
-		$crud->fieldType('cycle_start', 'date');
-		$crud->fieldType('cycle_end', 'date');
+		$crud->fieldType('created', 'hidden');
+		$crud->fieldType('consumed', 'hidden');
+		$crud->fieldType('available', 'hidden');
+		$crud->fieldType('contract_months', 'hidden');
+		$crud->fieldType('cycle_start', 'hidden');
+		$crud->fieldType('cycle_end', 'hidden');
 		$crud->fieldType('status', 'dropdown', array(
 			CONTRACT_ACTIVE => ucwords(lang('Hueleanuevo.active')),
 			CONTRACT_SUSPENDED => ucwords(lang('Hueleanuevo.suspended')),
@@ -186,7 +190,24 @@ class Backend extends BaseController
 			CONTRACT_CANCELED => ucwords(lang('Hueleanuevo.canceled')),
 		));
 
+		$crud->callbackBeforeInsert(function ($stateParameters) {
+			$db      = \Config\Database::connect();
+			$builder = $db->table('plan');
+			$planDb = $builder->getWhere(['plan_id' => $stateParameters->data['plan_id']])
+							  ->getRowArray();
+
+			$stateParameters->data['available'] = intval($planDb['pounds']);
+			$stateParameters->data['consumed'] = 0;
+			$stateParameters->data['contract_months'] = MINIMUM_CONTRACT_MONTHS;
+			$stateParameters->data['created'] = Time::now()->toDateTimeString();
+			$stateParameters->data['cycle_start'] = Time::now()->toDateString();
+			$stateParameters->data['cycle_end'] = Time::now()->addMonths(1)->toDateString();
+
+			return $stateParameters;
+		});
+
 		$crud->unsetExport();
+		$crud->unsetEdit();
 
 		$output = $crud->render();
 
@@ -353,4 +374,22 @@ class Backend extends BaseController
 
 		return view('backend/blank', $data);
 	}
+
+	// // Validations
+	// public function client_is_available_for_any_plan (string $str, string &$error = null): bool {
+	// 	$db = \Config\Database::connect();
+	// 	$builder = $db->table('client_plan');
+	// 	$currentPlanExist = $builder->getWhere([
+	// 							'client_id' => $stateParameters->data['client_id'],
+	// 							'status' => CONTRACT_ACTIVE || CONTRACT_SUSPENDED,
+	// 						])
+	// 						->getRowArray();
+		
+	// 	if ( !empty($currentPlanExist) ) {
+	// 		// $error = lang('myerrors.evenError');
+	// 		$error = "La falla";
+	// 		return false;
+	// 	}
+	// 	return true;
+	// }
 }
