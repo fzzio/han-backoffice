@@ -80,3 +80,8 @@ defined('EXIT__AUTO_MAX')      || define('EXIT__AUTO_MAX', 125); // highest auto
 defined('STATUS_ACTIVE')        || define('STATUS_ACTIVE', 1);
 defined('STATUS_INACTIVE')      || define('STATUS_INACTIVE', 0);
 defined('STATUS_DISABLED')      || define('STATUS_DISABLED', -1);
+
+defined('ORDER_STATUS_CANCELED')       || define('ORDER_STATUS_CANCELED', 0);
+defined('ORDER_STATUS_RECEIVED')       || define('ORDER_STATUS_RECEIVED', 1);
+defined('ORDER_STATUS_PROCESSED')      || define('ORDER_STATUS_PROCESSED', 2);
+defined('ORDER_STATUS_DELIVERED')      || define('ORDER_STATUS_DELIVERED', 3);
