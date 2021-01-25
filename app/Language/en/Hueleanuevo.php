@@ -18,4 +18,6 @@ return [
 	'processed'  => 'processed',
 	'delivered'  => 'delivered',
 	'canceled'  => 'canceled',
+	'suspended'  => 'suspended',
+	'ended'  => 'ended',
 ];

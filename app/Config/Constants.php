@@ -77,6 +77,8 @@ defined('EXIT__AUTO_MIN')      || define('EXIT__AUTO_MIN', 9); // lowest automat
 defined('EXIT__AUTO_MAX')      || define('EXIT__AUTO_MAX', 125); // highest automatically-assigned error code
 
 # Huele a Nuevo
+defined('MINIMUM_CONTRACT_MONTHS')        || define('MINIMUM_CONTRACT_MONTHS', 6);
+
 defined('STATUS_ACTIVE')        || define('STATUS_ACTIVE', 1);
 defined('STATUS_INACTIVE')      || define('STATUS_INACTIVE', 0);
 defined('STATUS_DISABLED')      || define('STATUS_DISABLED', -1);
@@ -85,3 +87,8 @@ defined('ORDER_STATUS_CANCELED')       || define('ORDER_STATUS_CANCELED', 0);
 defined('ORDER_STATUS_RECEIVED')       || define('ORDER_STATUS_RECEIVED', 1);
 defined('ORDER_STATUS_PROCESSED')      || define('ORDER_STATUS_PROCESSED', 2);
 defined('ORDER_STATUS_DELIVERED')      || define('ORDER_STATUS_DELIVERED', 3);
+
+defined('CONTRACT_ACTIVE')        || define('CONTRACT_ACTIVE', 1);
+defined('CONTRACT_SUSPENDED')     || define('CONTRACT_SUSPENDED', 2);
+defined('CONTRACT_ENDED')         || define('CONTRACT_ENDED', 3);
+defined('CONTRACT_CANCELED')      || define('CONTRACT_CANCELED', 4);

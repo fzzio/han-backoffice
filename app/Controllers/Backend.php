@@ -155,15 +155,36 @@ class Backend extends BaseController
 		$crud = new GroceryCrud();
 		
 		$crud->setTable( 'client_plan' );
+
 		$crud->displayAs( 'client_id' , 'Cliente' );
 		$crud->displayAs( 'plan_id' , 'Plan' );
-		$crud->displayAs( 'created' , 'Creado' );
-		$crud->displayAs( 'start_date' , 'Fecha Inicio' );
-		$crud->displayAs( 'end_date' , 'Fecha Fin' );
+		$crud->displayAs( 'contract_months' , 'Meses contratados' );
+		$crud->displayAs( 'cycle_start' , 'Ciclo inicio' );
+		$crud->displayAs( 'cycle_end' , 'Ciclo Fin' );
+		$crud->displayAs( 'available' , 'Libras disponibles' );
+		$crud->displayAs( 'consumed' , 'Libras consumidas' );
+		$crud->displayAs( 'created' , 'Fecha de contrato' );
+		$crud->displayAs( 'modified' , 'Modificado' );
 		$crud->displayAs( 'status' , 'Estado' );
 
-		$crud->setRelation('client_id','client','[{dni}] - {lastname} {name}');
 		$crud->setRelation('plan_id','plan','{name} - {pounds} lbs.');
+		$crud->setRelation('client_id','client','[{dni}] - {lastname} {name}');
+
+		$crud->columns(['plan_id', 'client_id', 'available', 'consumed', 'cycle_start', 'cycle_end', 'contract_months', 'contract_date', 'status']);
+		$crud->fields(['plan_id', 'client_id', 'status']);
+		$crud->requiredFields(['plan_id', 'client_id', 'status']);
+
+		$crud->fieldType('consumed', 'integer');
+		$crud->fieldType('available', 'integer');
+		$crud->fieldType('contract_months', 'integer');
+		$crud->fieldType('cycle_start', 'date');
+		$crud->fieldType('cycle_end', 'date');
+		$crud->fieldType('status', 'dropdown', array(
+			CONTRACT_ACTIVE => ucwords(lang('Hueleanuevo.active')),
+			CONTRACT_SUSPENDED => ucwords(lang('Hueleanuevo.suspended')),
+			CONTRACT_ENDED => ucwords(lang('Hueleanuevo.ended')),
+			CONTRACT_CANCELED => ucwords(lang('Hueleanuevo.canceled')),
+		));
 
 		$crud->unsetExport();
 
