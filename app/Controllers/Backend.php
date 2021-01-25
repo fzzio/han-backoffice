@@ -14,9 +14,12 @@ class Backend extends BaseController
         );
 	}
 
-	public function index()
-	{
-		echo "Hello HAN";
+	public function index() {
+		$title = "Huele a Nuevo";
+		$data = [
+			'page_title' => $title,
+		];
+		return view('backend/blank', $data);
 	}
 
 	public function client() {
@@ -27,7 +30,7 @@ class Backend extends BaseController
 		$crud->displayAs( 'dni' , 'Cédula' );
 		$crud->displayAs( 'name' , 'Nombres' );
 		$crud->displayAs( 'lastname' , 'Apellidos' );
-		$crud->displayAs( 'cellphone' , 'Celular' );
+		$crud->displayAs( 'cellphone' , 'Celular (593XXXXXXXXX)' );
 		$crud->displayAs( 'address' , 'Dirección' );
 		$crud->displayAs( 'phone' , 'Teléfono convencional' );
 		$crud->displayAs( 'email' , 'Correo' );
@@ -39,7 +42,7 @@ class Backend extends BaseController
 
 		$crud->fieldType('dni', 'integer');
 		$crud->fieldType('cellphone', 'integer');
-		$crud->fieldType('phone', 'integer');		
+		$crud->fieldType('phone', 'integer');
 
 		$crud->fieldType('modified','hidden');
 		$crud->fieldType('status', 'dropdown', array(
@@ -112,6 +115,45 @@ class Backend extends BaseController
 
 		$crud->setRelation('client_id','client','{lastname} {name}');
 		$crud->setRelation('plan_id','plan','{name} - {pounds} lbs.');
+
+		$crud->unsetExport();
+
+		$output = $crud->render();
+
+		$data = [
+			'page_title' => $title,
+			'css_files' => $output->css_files,
+			'output' => $output->output,
+			'js_files' => $output->js_files,
+		];
+
+		return view('backend/blank', $data);
+	}
+
+	public function employee(){
+		$title = "Empleado";
+	    $crud = new GroceryCrud();
+
+	    $crud->setTable( 'employee' );
+		$crud->displayAs( 'dni' , 'Cédula' );
+		$crud->displayAs( 'name' , 'Nombres' );
+		$crud->displayAs( 'lastname' , 'Apellidos' );
+		$crud->displayAs( 'cellphone' , 'Celular (593XXXXXXXXX)' );
+		$crud->displayAs( 'status' , 'Estado' );
+
+		$crud->fields(['dni', 'name', 'lastname', 'cellphone', 'status', 'created']);
+		$crud->columns(['dni', 'name', 'lastname', 'cellphone', 'status', 'created']);
+		$crud->requiredFields(['dni', 'name', 'lastname', 'cellphone', 'status']);
+
+		$crud->fieldType('dni', 'integer');
+		$crud->fieldType('cellphone', 'integer');
+		$crud->fieldType('phone', 'integer');
+
+		$crud->fieldType('modified','hidden');
+		$crud->fieldType('status', 'dropdown', array(
+			STATUS_INACTIVE => 'Inactive',
+			STATUS_ACTIVE => 'Active',
+		));
 
 		$crud->unsetExport();
 
