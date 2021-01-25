@@ -90,15 +90,17 @@ class Backend extends BaseController
 		
 		$crud->displayAs( 'name' , 'Nombre' );
 		$crud->displayAs( 'pounds' , 'Libras' );
-		$crud->displayAs( 'price' , 'Precio $' );
+		$crud->displayAs( 'price_plan' , 'Precio Plan' );
+		$crud->displayAs( 'price_pound' , 'Precio Libra' );
 		$crud->displayAs( 'status' , 'Estado' );
 		
-		$crud->columns(['name', 'pounds', 'price', 'status', 'created']);
-		$crud->fields(['name', 'pounds', 'price', 'status', 'created']);
-		$crud->requiredFields(['name', 'pounds', 'price', 'status']);
+		$crud->columns(['name', 'pounds', 'price_plan', 'price_pound', 'status', 'created']);
+		$crud->fields(['name', 'pounds', 'price_plan', 'price_pound', 'status', 'created']);
+		$crud->requiredFields(['name', 'pounds', 'price_plan', 'price_pound', 'status']);
 
 		$crud->fieldType('pounds', 'integer');
-		$crud->fieldType('price', 'integer');	
+		$crud->fieldType('price_plan', 'integer');	
+		$crud->fieldType('price_pound', 'integer');	
 
 		$crud->fieldType('modified','hidden');
 		$crud->fieldType('status', 'dropdown', array(
@@ -316,10 +318,10 @@ class Backend extends BaseController
 		$crud->requiredFields(['employee_id', 'client_id', 'status', 'created', 'delivered']);
 
 		$crud->fieldType('status', 'dropdown', array(
-			ORDER_STATUS_RECEIVED => 'Received',
-			ORDER_STATUS_PROCESSED => 'Processed',
-			ORDER_STATUS_DELIVERED => 'Delivered',
-			ORDER_STATUS_CANCELED => 'Canceled',
+			ORDER_STATUS_RECEIVED => ucwords(lang('Hueleanuevo.received')),
+			ORDER_STATUS_PROCESSED => ucwords(lang('Hueleanuevo.processed')),
+			ORDER_STATUS_DELIVERED => ucwords(lang('Hueleanuevo.delivered')),
+			ORDER_STATUS_CANCELED => ucwords(lang('Hueleanuevo.canceled')),
 		));
 
 		$crud->unsetExport();
@@ -346,20 +348,74 @@ class Backend extends BaseController
 		$crud->displayAs( 'amount' , 'Libras' );
 		$crud->displayAs( 'price' , 'Precio $' );
 		$crud->displayAs( 'created' , 'Creado' );
-		$crud->displayAs( 'modified' , 'Modificado' );
 		$crud->displayAs( 'status' , 'Estado' );
 
 		$crud->columns(['order_id', 'amount', 'price', 'created', 'status']);
-		$crud->fields(['order_id', 'amount', 'created', 'modified', 'status']);
-		$crud->requiredFields(['order_id', 'amount', 'created', 'status']);
+		$crud->fields(['order_id', 'amount', 'price', 'created', 'status']);
+		$crud->requiredFields(['order_id', 'amount', 'status']);
 
 		$crud->fieldType('amount', 'integer');
+		$crud->fieldType('price', 'hidden');
+		$crud->fieldType('created', 'hidden');
 		$crud->fieldType('status', 'dropdown', array(
 			STATUS_ACTIVE => ucwords(lang('Hueleanuevo.active')),
 			STATUS_INACTIVE => ucwords(lang('Hueleanuevo.inactive')),
 		));
 
-		$crud->setRelation('order_id', 'order','{order_id}');
+		$crud->setRelation('order_id', 'order','{order_id}', ['status' => ORDER_STATUS_RECEIVED]);
+
+		$crud->callbackBeforeInsert(function ($stateParameters) {
+			$db      = \Config\Database::connect();
+			$builder = $db->table('plan')
+			              ->select('plan.price_pound as plan_price_pound, client_plan.status as client_plan_status')
+						  ->join('client_plan', 'plan.plan_id = client_plan.plan_id AND (client_plan.status = ' . CONTRACT_ACTIVE . ' OR client_plan.status = ' . CONTRACT_SUSPENDED . ' )')
+						  ->join('order', 'order.client_id = client_plan.client_id AND order.status = ' . ORDER_STATUS_RECEIVED );
+			$planDb = $builder->getWhere([
+									'order.order_id' => $stateParameters->data['order_id'],
+									'plan.status' => STATUS_ACTIVE
+								])
+							  ->getRowArray();
+			
+			$poundPrice = DEFAULT_POUND_PRICE;
+			if ( !empty($planDb) ) {
+				if ($planDb['client_plan_status'] == CONTRACT_ACTIVE) {
+					$poundPrice = $planDb['plan_price_pound'];
+				}
+			}
+			
+			$stateParameters->data['price'] = round(($stateParameters->data['amount'] * $poundPrice), 2);
+			$stateParameters->data['created'] = Time::now()->toDateTimeString();
+
+			return $stateParameters;
+		});
+
+		$crud->callbackAfterInsert(function ($stateParameters) {
+			$db      = \Config\Database::connect();
+
+			$builder = $db->table('client_plan');
+			$clientPlan = $builder->select('client_plan.client_id, client_plan.plan_id')
+						  ->join('order', 'order.client_id = client_plan.client_id AND order.status = ' . ORDER_STATUS_RECEIVED )
+			              ->getWhere([
+									'order.order_id' => $stateParameters->data['order_id']
+							])
+						  ->getRowArray();
+
+
+			if ( !empty($clientPlan) ) {
+				$builder = $db->table('client_plan')
+							->set('available', 'available - ' . (int) $stateParameters->data['amount'], FALSE)
+							->set('consumed', 'consumed + ' . (int) $stateParameters->data['amount'], FALSE)
+							->set('modified', Time::now()->toDateTimeString())
+							->where([
+								'client_id' => $clientPlan['client_id'],
+								'plan_id' => $clientPlan['plan_id'],
+								'status' => CONTRACT_ACTIVE
+							])
+							->update();
+			}
+					
+			return $stateParameters;
+		});
 
 		$crud->unsetExport();
 

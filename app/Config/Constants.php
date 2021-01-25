@@ -92,3 +92,5 @@ defined('CONTRACT_ACTIVE')        || define('CONTRACT_ACTIVE', 1);
 defined('CONTRACT_SUSPENDED')     || define('CONTRACT_SUSPENDED', 2);
 defined('CONTRACT_ENDED')         || define('CONTRACT_ENDED', 3);
 defined('CONTRACT_CANCELED')      || define('CONTRACT_CANCELED', 4);
+
+defined('DEFAULT_POUND_PRICE')      || define('DEFAULT_POUND_PRICE', 0.60);
