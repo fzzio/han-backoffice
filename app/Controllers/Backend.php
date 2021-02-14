@@ -303,8 +303,10 @@ class Backend extends BaseController
 		$crud = new GroceryCrud();
 		
 		$crud->setTable( 'order' );
+		$crud->displayAs( 'order_id' , 'Orden No.' );
 		$crud->displayAs( 'employee_id' , 'Empleado' );
 		$crud->displayAs( 'client_id' , 'Cliente' );
+		$crud->displayAs( 'price' , 'Precio' );
 		$crud->displayAs( 'created' , 'Fecha de Recibido' );
 		$crud->displayAs( 'modified' , 'Modificación' );
 		$crud->displayAs( 'delivered' , 'Fecha de Entrega' );
@@ -313,9 +315,11 @@ class Backend extends BaseController
 		$crud->setRelation('employee_id', 'employee', '{lastname} {name}');
 		$crud->setRelation('client_id', 'client', '{lastname} {name}');
 
-		$crud->columns(['client_id', 'status', 'employee_id', 'created', 'delivered']);
+		$crud->columns(['order_id', 'client_id', 'status', 'employee_id', 'price', 'created', 'delivered']);
 		$crud->fields(['employee_id', 'client_id', 'status', 'created', 'delivered']);
 		$crud->requiredFields(['employee_id', 'client_id', 'status', 'created', 'delivered']);
+
+		$crud->callbackColumn('price', array($this,'format_currency'));
 
 		$crud->fieldType('status', 'dropdown', array(
 			ORDER_STATUS_RECEIVED => ucwords(lang('Hueleanuevo.received')),
@@ -364,6 +368,8 @@ class Backend extends BaseController
 
 		$crud->setRelation('order_id', 'order','{order_id}', ['status' => ORDER_STATUS_RECEIVED]);
 
+		$crud->callbackColumn('price', array($this,'format_currency'));
+
 		$crud->callbackBeforeInsert(function ($stateParameters) {
 			$db      = \Config\Database::connect();
 			$builder = $db->table('plan')
@@ -401,18 +407,27 @@ class Backend extends BaseController
 						  ->getRowArray();
 
 
-			if ( !empty($clientPlan) ) {
-				$builder = $db->table('client_plan')
-							->set('available', 'available - ' . (int) $stateParameters->data['amount'], FALSE)
-							->set('consumed', 'consumed + ' . (int) $stateParameters->data['amount'], FALSE)
+			$db->transStart();
+				if ( !empty($clientPlan) ) {
+					$builder = $db->table('client_plan')
+								->set('available', 'available - ' . (int) $stateParameters->data['amount'], FALSE)
+								->set('consumed', 'consumed + ' . (int) $stateParameters->data['amount'], FALSE)
+								->set('modified', Time::now()->toDateTimeString())
+								->where([
+									'client_id' => $clientPlan['client_id'],
+									'plan_id' => $clientPlan['plan_id'],
+									'status' => CONTRACT_ACTIVE
+								])
+								->update();
+				}
+				$builder = $db->table('order')
+							->set('price', 'price + ' . (double) $stateParameters->data['price'], FALSE)
 							->set('modified', Time::now()->toDateTimeString())
 							->where([
-								'client_id' => $clientPlan['client_id'],
-								'plan_id' => $clientPlan['plan_id'],
-								'status' => CONTRACT_ACTIVE
+								'order_id' => $stateParameters->data['order_id']
 							])
 							->update();
-			}
+			$db->transComplete();
 					
 			return $stateParameters;
 		});
@@ -448,4 +463,9 @@ class Backend extends BaseController
 	// 	}
 	// 	return true;
 	// }
+
+	// Callbacks
+	public function format_currency($value, $row){
+		return number_format($value, 2);
+	}
 }
