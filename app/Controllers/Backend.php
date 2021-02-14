@@ -316,8 +316,9 @@ class Backend extends BaseController
 		$crud->setRelation('client_id', 'client', '{lastname} {name}');
 
 		$crud->columns(['order_id', 'client_id', 'status', 'employee_id', 'price', 'created', 'delivered']);
-		$crud->fields(['employee_id', 'client_id', 'status', 'created', 'delivered']);
-		$crud->requiredFields(['employee_id', 'client_id', 'status', 'created', 'delivered']);
+		$crud->addFields(['employee_id', 'client_id', 'status', 'created']);
+		$crud->editFields(['status', 'delivered']);
+		// $crud->requiredFields(['employee_id', 'client_id', 'status']);
 
 		$crud->callbackColumn('price', array($this,'format_currency'));
 
